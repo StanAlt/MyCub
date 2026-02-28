@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 30 50% 98%;
+    --foreground: 20 14% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 20 14% 20%;
+    --primary: 16 100% 62%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 123 25% 47%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 260 48% 60%;
+    --accent-foreground: 0 0% 100%;
+    --muted: 30 30% 93%;
+    --muted-foreground: 20 10% 45%;
+    --border: 30 20% 88%;
+    --ring: 16 100% 62%;
+    --radius: 1rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-warm-50 text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .glass {
+    @apply bg-white/80 backdrop-blur-md;
+  }
+
+  .card-warm {
+    @apply bg-white rounded-3xl shadow-soft p-6 border border-warm-100;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-warm-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-warm-400;
+}
+
+/* Smooth page transitions */
+html {
+  scroll-behavior: smooth;
+}
