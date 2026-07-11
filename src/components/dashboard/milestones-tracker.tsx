@@ -10,7 +10,7 @@ import {
   getMilestonesForAge,
   getCategoryInfo,
 } from "@/lib/milestones-data";
-import { getAgeInMonths } from "@/lib/utils";
+import { formatDateOnly, getAgeInMonths, getLocalDateInputValue, parseDateOnly } from "@/lib/utils";
 import type { Child, Milestone, MilestoneCategory } from "@/lib/types";
 import {
   CheckCircle2,
@@ -42,7 +42,7 @@ export function MilestonesTracker({
   const router = useRouter();
   const supabase = createClient();
 
-  const ageMonths = getAgeInMonths(new Date(child.birth_date));
+  const ageMonths = getAgeInMonths(parseDateOnly(child.birth_date));
   const relevantMilestones = getMilestonesForAge(ageMonths);
 
   const filtered =
@@ -78,7 +78,7 @@ export function MilestonesTracker({
       } else {
         await supabase
           .from("milestones")
-          .update({ achieved_at: new Date().toISOString().split("T")[0] })
+          .update({ achieved_at: getLocalDateInputValue() })
           .eq("id", existing.id);
       }
     } else {
@@ -89,7 +89,7 @@ export function MilestonesTracker({
         title: template.title,
         description: template.description,
         expected_age_months: template.expected_age_months,
-        achieved_at: new Date().toISOString().split("T")[0],
+        achieved_at: getLocalDateInputValue(),
       });
     }
 
@@ -119,7 +119,7 @@ export function MilestonesTracker({
           Milestones
         </h1>
         <p className="text-warm-500 text-sm">
-          Track {child.name}&apos;s developmental milestones — based on CDC
+          Track {child.name}&apos;s developmental milestones â€” based on CDC
           guidelines
         </p>
       </div>
@@ -250,10 +250,11 @@ export function MilestonesTracker({
                             {achieved && (
                               <p className="text-xs text-sage-600 mt-1">
                                 Achieved on{" "}
-                                {new Date(achieved.achieved_at!).toLocaleDateString(
-                                  "en-US",
-                                  { month: "short", day: "numeric", year: "numeric" }
-                                )}
+                                {formatDateOnly(achieved.achieved_at!, {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                })}
                               </p>
                             )}
                           </div>
