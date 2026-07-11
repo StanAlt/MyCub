@@ -1,93 +1,247 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Baby, BarChart3, Check, Heart, LineChart, LockKeyhole, Ruler, Sparkles, Stars, Users } from "lucide-react";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValueEvent,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion";
+import {
+  ArrowDown,
+  ArrowRight,
+  Baby,
+  BarChart3,
+  Check,
+  Heart,
+  LineChart,
+  LockKeyhole,
+  Ruler,
+  Sparkles,
+  Stars,
+  Users,
+} from "lucide-react";
 
-const features = [
-  [LineChart, "Growth, made visible", "Follow weight, length, height, and head circumference with calm, legible trend and percentile views."],
-  [Stars, "A living timeline", "Keep measurements, moments, notes, and milestones together—ready whenever a pediatrician asks."],
-  [Users, "Built for families", "One shared family space for every child, securely protected for the people who help them grow."],
+const chapters = [
+  {
+    number: "01",
+    age: "The first days",
+    title: "Remember the moment.",
+    copy: "A first smile can last a second. In MyCub, it becomes part of the story forever—kept with the notes, dates, and people who were there.",
+    value: "Milestones + private memories",
+    image: "/journey/stage-newborn.png",
+    position: "center 45%",
+  },
+  {
+    number: "02",
+    age: "The little explorer",
+    title: "See growth take shape.",
+    copy: "Turn every new measurement into a clear, beautiful trajectory. Understand the change without losing the child behind the chart.",
+    value: "Measurements + growth analytics",
+    image: "/journey/stage-toddler.png",
+    position: "center 50%",
+  },
+  {
+    number: "03",
+    age: "The brave firsts",
+    title: "Share the care.",
+    copy: "First steps, new words, big feelings—one protected family space keeps everyone close to the moments that matter.",
+    value: "One secure family workspace",
+    image: "/journey/stage-first-steps.png",
+    position: "center 48%",
+  },
+  {
+    number: "04",
+    age: "Ready for what’s next",
+    title: "Carry the whole story forward.",
+    copy: "From infancy to eighteen, give them a living record of how they grew—and the confidence to see just how far they’ve come.",
+    value: "Reports + a lifelong record",
+    image: "/journey/stage-young-adult.png",
+    position: "center 38%",
+  },
 ] as const;
 
-function GrowthOrbit() {
+const features = [
+  [LineChart, "Growth, made visible", "Follow weight, length, height, and head circumference with calm trend and percentile views."],
+  [Stars, "A living timeline", "Keep measurements, memories, notes, and milestones together, from day one to eighteen."],
+  [Users, "Built for your circle", "One shared family space, protected for the people who help your child grow."],
+] as const;
+
+function Brand() {
+  return <span className="brand"><span><Baby /></span>mycub</span>;
+}
+
+function JourneyExperience() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const reduced = useReducedMotion();
+  const [active, setActive] = useState(0);
+  const [ready, setReady] = useState(false);
+  const [showLoader, setShowLoader] = useState(true);
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 80, damping: 24, mass: 0.4 });
+  const progressWidth = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
+  const heroOpacity = useTransform(smoothProgress, [0, 0.09, 0.18], [1, 1, 0]);
+  const heroScale = useTransform(smoothProgress, [0, 0.2], [1, 0.94]);
+  const haze = useTransform(smoothProgress, [0, 0.5, 1], [0.08, 0.24, 0.08]);
+
+  useMotionValueEvent(scrollYProgress, "change", (value) => {
+    const next = Math.min(chapters.length - 1, Math.max(0, Math.floor((value + 0.08) * chapters.length)));
+    setActive((current) => current === next ? current : next);
+    if (!reduced && videoRef.current?.duration) {
+      const target = value * Math.max(0, videoRef.current.duration - 0.05);
+      if (Math.abs(videoRef.current.currentTime - target) > 0.08) videoRef.current.currentTime = target;
+    }
+  });
+
+  useEffect(() => {
+    const escape = window.setTimeout(() => setShowLoader(false), 4200);
+    return () => window.clearTimeout(escape);
+  }, []);
+
+  useEffect(() => {
+    if (!ready) return;
+    const exit = window.setTimeout(() => setShowLoader(false), 650);
+    return () => window.clearTimeout(exit);
+  }, [ready]);
+
   return (
-    <div className="growth-orbit" aria-label="A preview of a child’s growth journey">
-      <div className="orbit-glow" /><div className="orbit-ring one" /><div className="orbit-ring two" />
-      <motion.div className="orbit-card left" animate={reduced ? undefined : { y: [0,-10,0], rotate: [-4,-2,-4] }} transition={{duration:5,repeat:Infinity}}>
-        <span>TODAY</span><strong>71.2 cm</strong><small>Steady growth</small>
-      </motion.div>
-      <motion.div className="orbit-core" animate={reduced ? undefined : { rotateY:[0,12,0,-12,0], rotateX:[0,-4,0,4,0] }} transition={{duration:10,repeat:Infinity}}>
-        <div className="cub-face"><i className="ear l"/><i className="ear r"/><i className="eye l"/><i className="eye r"/><i className="nose"/></div>
-        <span>MILA’S WORLD</span><strong>18 months</strong><div className="progress"><i/></div><small>Growing beautifully</small>
-      </motion.div>
-      <motion.div className="orbit-card right" animate={reduced ? undefined : { y:[0,9,0], rotate:[5,3,5] }} transition={{duration:6,repeat:Infinity}}>
-        <Heart fill="currentColor"/><strong>First steps</strong><small>2 days ago</small>
-      </motion.div>
-      <b className="dot d1"/><b className="dot d2"/><b className="dot d3"/>
-    </div>
+    <>
+      <AnimatePresence>
+        {showLoader && (
+          <motion.div className="journey-loader" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.8 }}>
+            <div className="loader-mark"><Baby /></div>
+            <p>Preparing their journey</p>
+            <div className="loader-line"><motion.i initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 3.2, ease: "easeInOut" }} /></div>
+            <span>FIRST SMILE&nbsp;&nbsp;•&nbsp;&nbsp;FIRST STEPS&nbsp;&nbsp;•&nbsp;&nbsp;EVERYTHING AHEAD</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <section className="journey" ref={sectionRef} aria-label="The journey from infancy to young adulthood">
+        <div className="journey-sticky">
+          <div className="journey-media" aria-hidden="true">
+            <video
+              ref={videoRef}
+              muted
+              playsInline
+              preload="auto"
+              poster="/journey/stage-newborn.png"
+              onLoadedData={() => setReady(true)}
+              onCanPlay={() => setReady(true)}
+            >
+              <source src="https://tempfile.aiquickdraw.com/v/9091b95b2e9e192724f9f62c3f7318ba_1783781779.mp4" type="video/mp4" />
+            </video>
+            {chapters.map((chapter, index) => (
+              <motion.div
+                key={chapter.number}
+                className="journey-still"
+                initial={false}
+                animate={{ opacity: active === index ? (ready ? 0 : 1) : 0, scale: active === index ? 1.04 : 1.1 }}
+                transition={{ duration: 1.15, ease: [0.22, 1, 0.36, 1] }}
+                style={{ backgroundImage: `url(${chapter.image})`, backgroundPosition: chapter.position }}
+              />
+            ))}
+          </div>
+          <motion.div className="journey-haze" style={{ opacity: haze }} />
+          <div className="journey-vignette" />
+
+          <motion.div className="journey-intro" style={{ opacity: heroOpacity, scale: heroScale }}>
+            <span className="cinema-kicker"><Sparkles /> The story only your family can tell</span>
+            <h1>Every stage.<br /><em>One extraordinary story.</em></h1>
+            <p>MyCub keeps the measurements, milestones, and memories that turn growing up into something you can see, understand, and hold onto.</p>
+            <div className="journey-actions">
+              <Link className="journey-button primary" href="/signup">Start their story <ArrowRight /></Link>
+              <a className="scroll-prompt" href="#chapter-one"><ArrowDown /> Scroll to fly through the years</a>
+            </div>
+          </motion.div>
+
+          <AnimatePresence mode="wait">
+            <motion.article
+              key={active}
+              id={active === 0 ? "chapter-one" : undefined}
+              className={`chapter-card chapter-${active + 1}`}
+              initial={{ opacity: 0, y: 48, filter: "blur(12px)" }}
+              animate={{ opacity: scrollYProgress.get() > 0.14 ? 1 : 0, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -30, filter: "blur(10px)" }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="chapter-meta"><span>{chapters[active].number} / 04</span><span>{chapters[active].age}</span></div>
+              <h2>{chapters[active].title}</h2>
+              <p>{chapters[active].copy}</p>
+              <div className="chapter-value"><Check /> {chapters[active].value}</div>
+            </motion.article>
+          </AnimatePresence>
+
+          <div className="journey-rail" aria-hidden="true">
+            <div className="journey-track"><motion.i style={{ width: progressWidth }} /></div>
+            <div className="journey-dots">
+              {chapters.map((chapter, index) => <span key={chapter.number} className={active === index ? "active" : ""}>{chapter.number}</span>)}
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
 
 export default function HomePage() {
   return (
-    <main className="marketing">
-      <nav className="marketing-nav">
-        <Link href="/" className="brand"><span><Baby/></span>mycub</Link>
+    <main className="marketing journey-marketing">
+      <nav className="journey-nav">
+        <Link href="/" aria-label="MyCub home"><Brand /></Link>
         <div className="nav-links"><a href="#why">Why MyCub</a><a href="#inside">Inside the app</a><a href="#privacy">Privacy</a></div>
-        <div className="nav-actions"><Link href="/login">Log in</Link><Link className="button dark" href="/signup">Start your family <ArrowRight/></Link></div>
+        <div className="nav-actions"><Link href="/login">Log in</Link><Link className="journey-button compact" href="/signup">Start your family <ArrowRight /></Link></div>
       </nav>
 
-      <section className="hero">
-        <div className="hero-copy">
-          <div className="eyebrow"><Sparkles/> A gentler way to see them grow</div>
-          <h1>Every little change becomes part of their <em>big story.</em></h1>
-          <p>MyCub brings growth, milestones, memories, and family notes into one beautiful place—so you can notice the progress hiding in ordinary days.</p>
-          <div className="hero-actions"><Link className="button primary" href="/signup">Create your free family <ArrowRight/></Link><a href="#inside" className="watch"><i>↘</i> See how it feels</a></div>
-          <div className="trust"><span><Check/>Free to begin</span><span><Check/>No ads</span><span><Check/>Your data stays yours</span></div>
+      <JourneyExperience />
+
+      <section id="why" className="journey-proof">
+        <header>
+          <span className="proof-kicker">THE YEARS MOVE FAST. YOUR STORY DOESN’T HAVE TO.</span>
+          <h2>Not another baby log.<br /><em>A record of becoming.</em></h2>
+          <p>Clinical enough to be useful. Warm enough to feel unmistakably yours.</p>
+        </header>
+        <div className="proof-grid">
+          {features.map(([Icon, title, copy], index) => (
+            <article key={title}>
+              <div><span>0{index + 1}</span><Icon /></div>
+              <h3>{title}</h3><p>{copy}</p><i />
+            </article>
+          ))}
         </div>
-        <GrowthOrbit/>
       </section>
 
-      <section className="snapshots">
-        <div className="snapshot-intro"><span>ONE CALM VIEW</span><p>From the first measurement to the latest “look what I can do.”</p></div>
-        {[["Weight","8.4","kg","+0.7"],["Length","71.2","cm","+2.1"],["Milestones","12","logged","+3"]].map(([label,value,unit,change]) => (
-          <div className="snapshot" key={label}><span>{label}</span><div><strong>{value}</strong><small>{unit}</small></div><em>{change} this month</em></div>
-        ))}
-      </section>
-
-      <section id="why" className="features">
-        <header><div className="eyebrow"><Heart/> Made for the in-between moments</div><h2>Not another baby log.<br/>A record of becoming.</h2><p>Clinical enough to be useful. Warm enough to feel like yours.</p></header>
-        <div className="feature-grid">{features.map(([Icon,title,copy],i) => (
-          <article key={title}><div className="feature-top"><span>0{i+1}</span><Icon/></div><h3>{title}</h3><p>{copy}</p><i className="accent-line"/></article>
-        ))}</div>
-      </section>
-
-      <section id="inside" className="inside">
-        <div className="inside-copy">
-          <div className="eyebrow"><BarChart3/> Beautifully clear by design</div>
-          <h2>The full picture,<br/>without the overwhelm.</h2>
-          <p>See the trend, record the moment, and bring a clear history to checkups. MyCub turns scattered notes into a story you can understand at a glance.</p>
+      <section id="inside" className="journey-inside">
+        <div className="inside-story">
+          <span className="proof-kicker"><BarChart3 /> CLEAR BY DESIGN</span>
+          <h2>The full picture,<br />without the overwhelm.</h2>
+          <p>See the trend, record the moment, and bring a clear history to checkups. MyCub turns scattered notes into a story you understand at a glance.</p>
           <ul>
-            <li><i><Ruler/></i><div><strong>Precise measurement history</strong><small>Metric entry with date-aware trends.</small></div></li>
-            <li><i><Sparkles/></i><div><strong>Thoughtful progress reports</strong><small>Readable summaries for family and care teams.</small></div></li>
-            <li><i><LockKeyhole/></i><div><strong>Private family workspace</strong><small>Supabase authentication and row-level security.</small></div></li>
+            <li><Ruler /><span><strong>Precise measurement history</strong><small>Beautiful, date-aware growth trends.</small></span></li>
+            <li><Sparkles /><span><strong>Thoughtful progress reports</strong><small>Readable summaries for family and care teams.</small></span></li>
+            <li><LockKeyhole /><span><strong>Private family workspace</strong><small>Protected authentication and row-level security.</small></span></li>
           </ul>
-          <Link className="inline-link" href="/signup">Explore your family dashboard <ArrowRight/></Link>
+          <Link className="text-link" href="/signup">Explore your family dashboard <ArrowRight /></Link>
         </div>
-        <div className="preview-wrap"><div className="preview">
-          <div className="window-bar"><i/><i/><i/><b>Overview</b></div>
-          <div className="preview-body">
-            <div className="greeting"><div><small>GOOD MORNING</small><h3>Mila is growing beautifully.</h3></div><b>M</b></div>
-            <div className="preview-stats"><div><small>WEIGHT</small><strong>8.4 <i>kg</i></strong><span>↗ on track</span></div><div><small>LENGTH</small><strong>71.2 <i>cm</i></strong><span>↗ +2.1 cm</span></div><div><small>NEXT CHECK-IN</small><strong>12 <i>days</i></strong><span>Oct 24</span></div></div>
-            <div className="chart"><svg viewBox="0 0 600 220" role="img" aria-label="Sample growth chart"><defs><linearGradient id="fill" x1="0" y1="0" x2="0" y2="1"><stop stopColor="#6978eb" stopOpacity=".3"/><stop offset="1" stopColor="#6978eb" stopOpacity="0"/></linearGradient></defs><path d="M0 180 C90 165 110 130 190 135 S310 95 370 105 S475 55 600 42 L600 220 L0 220Z" fill="url(#fill)"/><path d="M0 180 C90 165 110 130 190 135 S310 95 370 105 S475 55 600 42" fill="none" stroke="#6978eb" strokeWidth="5" strokeLinecap="round"/></svg></div>
-          </div>
-        </div></div>
+        <div className="story-mosaic" aria-label="A preview of MyCub’s growth tracking experience">
+          <div className="mosaic-photo" />
+          <div className="mosaic-stat"><span>HEIGHT</span><strong>71.2 <small>cm</small></strong><em>+2.1 this month</em></div>
+          <div className="mosaic-chart"><span>GROWTH JOURNEY</span><svg viewBox="0 0 500 170" role="img" aria-label="Sample upward growth trend"><defs><linearGradient id="journeyFill" x1="0" y1="0" x2="0" y2="1"><stop stopColor="#8fd0ba" stopOpacity=".4"/><stop offset="1" stopColor="#8fd0ba" stopOpacity="0"/></linearGradient></defs><path d="M0 145 C75 135 115 112 170 118 S280 83 330 90 S420 45 500 32 L500 170 L0 170Z" fill="url(#journeyFill)"/><path d="M0 145 C75 135 115 112 170 118 S280 83 330 90 S420 45 500 32" fill="none" stroke="#8fd0ba" strokeWidth="5" strokeLinecap="round"/></svg></div>
+          <div className="mosaic-moment"><Heart fill="currentColor" /><span><strong>First steps</strong><small>Added to the story</small></span></div>
+        </div>
       </section>
 
-      <section id="privacy" className="privacy"><div><LockKeyhole/><span><strong>Their story is not our product.</strong><small>Private by default. No ads. No selling family data.</small></span></div><Link className="button light" href="/signup">Begin with MyCub <ArrowRight/></Link></section>
-      <footer><div className="brand"><span><Baby/></span>mycub</div><p>Made with care for growing families.</p><div><Link href="/login">Log in</Link><a href="#privacy">Privacy</a></div></footer>
+      <section id="privacy" className="journey-privacy">
+        <div><LockKeyhole /><span><strong>Their story is not our product.</strong><small>Private by default. No ads. No selling family data.</small></span></div>
+        <Link className="journey-button light" href="/signup">Begin with MyCub <ArrowRight /></Link>
+      </section>
+      <footer className="journey-footer"><Brand /><p>Made with care for growing families.</p><div><Link href="/login">Log in</Link><a href="#privacy">Privacy</a></div></footer>
     </main>
   );
 }
+
