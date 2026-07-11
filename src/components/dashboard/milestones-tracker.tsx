@@ -119,7 +119,7 @@ export function MilestonesTracker({
           Milestones
         </h1>
         <p className="text-warm-500 text-sm">
-          Track {child.name}&apos;s developmental milestones â€” based on CDC
+          Track {child.name}&apos;s developmental milestones — based on CDC
           guidelines
         </p>
       </div>

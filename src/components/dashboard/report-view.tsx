@@ -18,17 +18,17 @@ export function ReportView({ child, entries, milestones }: { child: Child; entri
       <article className="report-paper">
         <header className="report-cover">
           <div className="brand"><span><FileText /></span>mycub report</div>
-          <div className="report-child"><div className="report-avatar">{child.name[0]}</div><div><small>CHILD PROGRESS SUMMARY</small><h2>{child.name}</h2><p>{getAgeString(parseDateOnly(child.birth_date))} Â· Generated {generated}</p></div></div>
+          <div className="report-child"><div className="report-avatar">{child.name[0]}</div><div><small>CHILD PROGRESS SUMMARY</small><h2>{child.name}</h2><p>{getAgeString(parseDateOnly(child.birth_date))} · Generated {generated}</p></div></div>
           <div className="report-badge"><Sparkles /> A record of becoming</div>
         </header>
         <section className="report-metrics">
-          <div><Scale /><span>Latest weight</span><strong>{latest?.weight_kg ?? "â€”"} <small>kg</small></strong><p>{first?.weight_kg && latest?.weight_kg ? `${(Number(latest.weight_kg)-Number(first.weight_kg)).toFixed(1)} kg change across the record` : "Add more entries for a trend"}</p></div>
-          <div><Ruler /><span>Latest length</span><strong>{latest?.height_cm ?? "â€”"} <small>cm</small></strong><p>{first?.height_cm && latest?.height_cm ? `${(Number(latest.height_cm)-Number(first.height_cm)).toFixed(1)} cm change across the record` : "Add more entries for a trend"}</p></div>
+          <div><Scale /><span>Latest weight</span><strong>{latest?.weight_kg ?? "—"} <small>kg</small></strong><p>{first?.weight_kg && latest?.weight_kg ? `${(Number(latest.weight_kg)-Number(first.weight_kg)).toFixed(1)} kg change across the record` : "Add more entries for a trend"}</p></div>
+          <div><Ruler /><span>Latest length</span><strong>{latest?.height_cm ?? "—"} <small>cm</small></strong><p>{first?.height_cm && latest?.height_cm ? `${(Number(latest.height_cm)-Number(first.height_cm)).toFixed(1)} cm change across the record` : "Add more entries for a trend"}</p></div>
           <div><Check /><span>Milestones saved</span><strong>{achieved.length}</strong><p>{milestones.length - achieved.length} currently being explored</p></div>
         </section>
         <section className="report-section">
           <div className="report-title"><span>MEASUREMENT HISTORY</span><h3>Recorded growth</h3></div>
-          {entries.length ? <div className="report-table"><div className="report-row head"><span>Date</span><span>Weight</span><span>Length</span><span>Head</span></div>{entries.slice(-8).reverse().map((entry) => <div className="report-row" key={entry.id}><span>{formatDateOnly(entry.date)}</span><span>{entry.weight_kg ? `${entry.weight_kg} kg` : "â€”"}</span><span>{entry.height_cm ? `${entry.height_cm} cm` : "â€”"}</span><span>{entry.head_circumference_cm ? `${entry.head_circumference_cm} cm` : "â€”"}</span></div>)}</div> : <p className="report-empty">No measurements have been recorded yet.</p>}
+          {entries.length ? <div className="report-table"><div className="report-row head"><span>Date</span><span>Weight</span><span>Length</span><span>Head</span></div>{entries.slice(-8).reverse().map((entry) => <div className="report-row" key={entry.id}><span>{formatDateOnly(entry.date)}</span><span>{entry.weight_kg ? `${entry.weight_kg} kg` : "—"}</span><span>{entry.height_cm ? `${entry.height_cm} cm` : "—"}</span><span>{entry.head_circumference_cm ? `${entry.head_circumference_cm} cm` : "—"}</span></div>)}</div> : <p className="report-empty">No measurements have been recorded yet.</p>}
         </section>
         <section className="report-section">
           <div className="report-title"><span>DEVELOPMENT STORY</span><h3>Recent milestones</h3></div>

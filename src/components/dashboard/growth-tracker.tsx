@@ -76,7 +76,7 @@ export function GrowthTracker({ child, entries }: GrowthTrackerProps) {
             Growth Tracker
           </h1>
           <p className="text-warm-500 text-sm">
-            {child.name}&apos;s growth journey â€” WHO percentile standards
+            {child.name}&apos;s growth journey — WHO percentile standards
           </p>
         </div>
         <Button onClick={() => setShowForm(true)}>
@@ -210,7 +210,7 @@ export function GrowthTracker({ child, entries }: GrowthTrackerProps) {
           </div>
           <p className="text-xs text-warm-500 mt-3">
             Percentiles show how your child compares to other children of the
-            same age and sex. The 50th percentile is average â€” being above or
+            same age and sex. The 50th percentile is average — being above or
             below is usually perfectly normal.
           </p>
         </CardContent>
