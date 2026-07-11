@@ -32,7 +32,7 @@ export function FamilySettings({ family, role, childRecords, userId }: { family:
   }
   return (
     <div className="family-page">
-      <div className="family-heading"><span className="workspace-kicker">FAMILY SPACE</span><h1>The people at the heart of it.</h1><p>Keep every childâ€™s story together in one private, shared home.</p></div>
+      <div className="family-heading"><span className="workspace-kicker">FAMILY SPACE</span><h1>The people at the heart of it.</h1><p>Keep every child’s story together in one private, shared home.</p></div>
       <div className="family-grid">
         <section className="family-card primary-card">
           <div className="family-icon"><Home /></div><div><span>FAMILY NAME</span><h2>{family?.name || "Create your family"}</h2><p>This name appears across your private workspace and reports.</p></div>
