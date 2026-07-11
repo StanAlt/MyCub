@@ -12,16 +12,16 @@ const config: Config = {
         // MyCub brand palette — warm, nurturing, playful
         brand: {
           // Primary: warm coral/peach — warmth, love, nurturing
-          50: "#fff5f0",
-          100: "#ffe8db",
-          200: "#ffd1b8",
-          300: "#ffb088",
-          400: "#ff8a5c",
-          500: "#ff6b3d",
-          600: "#f04e22",
-          700: "#cc3a14",
-          800: "#a33016",
-          900: "#842c17",
+          50: "#f4f5ff",
+          100: "#e9ebff",
+          200: "#d3d7ff",
+          300: "#aeb6ff",
+          400: "#8793f7",
+          500: "#6978eb",
+          600: "#5866d7",
+          700: "#4854b7",
+          800: "#3c4793",
+          900: "#333d75",
         },
         // Secondary: soft sage green — growth, health, nature
         sage: {
@@ -51,16 +51,16 @@ const config: Config = {
         },
         // Warm neutrals — cozy backgrounds
         warm: {
-          50: "#fefcf9",
-          100: "#fdf8f0",
-          200: "#fbf0de",
-          300: "#f7e3c4",
-          400: "#f1d0a0",
-          500: "#e9b97a",
-          600: "#dfa05a",
-          700: "#c98443",
-          800: "#a66c3a",
-          900: "#875932",
+          50: "#fafbfe",
+          100: "#f4f6fb",
+          200: "#e7eaf2",
+          300: "#d4d9e5",
+          400: "#aeb6c7",
+          500: "#858fa3",
+          600: "#687386",
+          700: "#4f5b70",
+          800: "#354158",
+          900: "#17233f",
         },
         // Sky blue — for charts and data vis
         sky: {
@@ -87,7 +87,7 @@ const config: Config = {
       },
       boxShadow: {
         soft: "0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)",
-        glow: "0 0 20px rgba(255, 107, 61, 0.15)",
+        glow: "0 0 24px rgba(105, 120, 235, 0.18)",
       },
       animation: {
         "fade-in": "fadeIn 0.5s ease-out",

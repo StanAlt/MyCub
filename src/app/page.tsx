@@ -1,259 +1,93 @@
+"use client";
+
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import {
-  Baby,
-  TrendingUp,
-  Brain,
-  Heart,
-  Shield,
-  Sparkles,
-  ArrowRight,
-  Star,
-} from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { ArrowRight, Baby, BarChart3, Check, Heart, LineChart, LockKeyhole, Ruler, Sparkles, Stars, Users } from "lucide-react";
+
+const features = [
+  [LineChart, "Growth, made visible", "Follow weight, length, height, and head circumference with calm, legible trend and percentile views."],
+  [Stars, "A living timeline", "Keep measurements, moments, notes, and milestones together—ready whenever a pediatrician asks."],
+  [Users, "Built for families", "One shared family space for every child, securely protected for the people who help them grow."],
+] as const;
+
+function GrowthOrbit() {
+  const reduced = useReducedMotion();
+  return (
+    <div className="growth-orbit" aria-label="A preview of a child’s growth journey">
+      <div className="orbit-glow" /><div className="orbit-ring one" /><div className="orbit-ring two" />
+      <motion.div className="orbit-card left" animate={reduced ? undefined : { y: [0,-10,0], rotate: [-4,-2,-4] }} transition={{duration:5,repeat:Infinity}}>
+        <span>TODAY</span><strong>71.2 cm</strong><small>Steady growth</small>
+      </motion.div>
+      <motion.div className="orbit-core" animate={reduced ? undefined : { rotateY:[0,12,0,-12,0], rotateX:[0,-4,0,4,0] }} transition={{duration:10,repeat:Infinity}}>
+        <div className="cub-face"><i className="ear l"/><i className="ear r"/><i className="eye l"/><i className="eye r"/><i className="nose"/></div>
+        <span>MILA’S WORLD</span><strong>18 months</strong><div className="progress"><i/></div><small>Growing beautifully</small>
+      </motion.div>
+      <motion.div className="orbit-card right" animate={reduced ? undefined : { y:[0,9,0], rotate:[5,3,5] }} transition={{duration:6,repeat:Infinity}}>
+        <Heart fill="currentColor"/><strong>First steps</strong><small>2 days ago</small>
+      </motion.div>
+      <b className="dot d1"/><b className="dot d2"/><b className="dot d3"/>
+    </div>
+  );
+}
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen">
-      {/* Nav */}
-      <nav className="fixed top-0 w-full z-50 glass border-b border-warm-100">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-brand-500 rounded-xl flex items-center justify-center">
-              <Baby className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-display font-bold text-xl text-warm-900">
-              MyCub
-            </span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link href="/login">
-              <Button variant="ghost" size="sm">
-                Log in
-              </Button>
-            </Link>
-            <Link href="/signup">
-              <Button size="sm">
-                Get Started
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
-          </div>
-        </div>
+    <main className="marketing">
+      <nav className="marketing-nav">
+        <Link href="/" className="brand"><span><Baby/></span>mycub</Link>
+        <div className="nav-links"><a href="#why">Why MyCub</a><a href="#inside">Inside the app</a><a href="#privacy">Privacy</a></div>
+        <div className="nav-actions"><Link href="/login">Log in</Link><Link className="button dark" href="/signup">Start your family <ArrowRight/></Link></div>
       </nav>
 
-      {/* Hero */}
-      <section className="pt-32 pb-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-brand-100 text-brand-700 text-sm font-medium px-4 py-1.5 rounded-full mb-6">
-            <Sparkles className="w-4 h-4" />
-            AI-powered child development tracking
-          </div>
-          <h1 className="font-display text-5xl md:text-6xl font-bold text-warm-900 leading-tight mb-6">
-            Nurture Every{" "}
-            <span className="text-brand-500">Milestone</span>
-          </h1>
-          <p className="text-lg md:text-xl text-warm-600 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Track growth, celebrate firsts, and get gentle AI-powered insights
-            to help your child thrive — from their first steps to their
-            twelfth birthday.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/signup">
-              <Button size="xl" className="w-full sm:w-auto">
-                Start Free
-                <ArrowRight className="w-5 h-5" />
-              </Button>
-            </Link>
-            <Link href="#features">
-              <Button variant="outline" size="xl" className="w-full sm:w-auto">
-                See How It Works
-              </Button>
-            </Link>
-          </div>
-          <p className="text-sm text-warm-500 mt-4">
-            Free forever for your first child. No credit card needed.
-          </p>
+      <section className="hero">
+        <div className="hero-copy">
+          <div className="eyebrow"><Sparkles/> A gentler way to see them grow</div>
+          <h1>Every little change becomes part of their <em>big story.</em></h1>
+          <p>MyCub brings growth, milestones, memories, and family notes into one beautiful place—so you can notice the progress hiding in ordinary days.</p>
+          <div className="hero-actions"><Link className="button primary" href="/signup">Create your free family <ArrowRight/></Link><a href="#inside" className="watch"><i>↘</i> See how it feels</a></div>
+          <div className="trust"><span><Check/>Free to begin</span><span><Check/>No ads</span><span><Check/>Your data stays yours</span></div>
         </div>
+        <GrowthOrbit/>
       </section>
 
-      {/* Social proof */}
-      <section className="py-8 border-y border-warm-100 bg-white/50">
-        <div className="max-w-4xl mx-auto px-4 flex flex-wrap items-center justify-center gap-8 text-warm-500 text-sm">
-          <div className="flex items-center gap-1">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-4 h-4 fill-brand-400 text-brand-400" />
-            ))}
-            <span className="ml-2 font-medium">Loved by parents</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-sage-500" />
-            <span>WHO Growth Standards</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Brain className="w-4 h-4 text-lavender-500" />
-            <span>CDC Milestone Guidelines</span>
-          </div>
-        </div>
+      <section className="snapshots">
+        <div className="snapshot-intro"><span>ONE CALM VIEW</span><p>From the first measurement to the latest “look what I can do.”</p></div>
+        {[["Weight","8.4","kg","+0.7"],["Length","71.2","cm","+2.1"],["Milestones","12","logged","+3"]].map(([label,value,unit,change]) => (
+          <div className="snapshot" key={label}><span>{label}</span><div><strong>{value}</strong><small>{unit}</small></div><em>{change} this month</em></div>
+        ))}
       </section>
 
-      {/* Features */}
-      <section id="features" className="py-24 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-warm-900 mb-4">
-              Everything your growing family needs
-            </h2>
-            <p className="text-warm-600 text-lg max-w-2xl mx-auto">
-              Simple, beautiful tools designed by parents, for parents.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                icon: TrendingUp,
-                title: "Growth Charts",
-                description:
-                  "Beautiful, WHO-standard percentile charts that show exactly where your child stands — explained gently and clearly.",
-                color: "bg-sky-100 text-sky-600",
-              },
-              {
-                icon: Brain,
-                title: "Milestone Tracking",
-                description:
-                  "CDC-based developmental milestones across motor, language, cognitive, and social skills. Know what to expect and when.",
-                color: "bg-lavender-100 text-lavender-600",
-              },
-              {
-                icon: Sparkles,
-                title: "AI Insights",
-                description:
-                  "Gentle, personalized guidance powered by AI. Get product recommendations and activities tailored to your child's stage.",
-                color: "bg-brand-100 text-brand-600",
-              },
-              {
-                icon: Heart,
-                title: "Photo Memories",
-                description:
-                  "Capture and tag precious moments. Build a visual timeline of your child's journey from year one to twelve.",
-                color: "bg-brand-100 text-brand-600",
-              },
-              {
-                icon: Baby,
-                title: "Multiple Children",
-                description:
-                  "Track all your cubs in one place. Each child gets their own profile, color theme, and personalized dashboard.",
-                color: "bg-sage-100 text-sage-600",
-              },
-              {
-                icon: Shield,
-                title: "Privacy First",
-                description:
-                  "Your family's data is yours. End-to-end encryption, no third-party sharing, and full data portability.",
-                color: "bg-warm-200 text-warm-700",
-              },
-            ].map((feature) => (
-              <div
-                key={feature.title}
-                className="card-warm group hover:scale-[1.02] transition-transform duration-200"
-              >
-                <div
-                  className={`w-12 h-12 rounded-2xl ${feature.color} flex items-center justify-center mb-4`}
-                >
-                  <feature.icon className="w-6 h-6" />
-                </div>
-                <h3 className="font-display font-bold text-lg text-warm-900 mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-warm-600 text-sm leading-relaxed">
-                  {feature.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
+      <section id="why" className="features">
+        <header><div className="eyebrow"><Heart/> Made for the in-between moments</div><h2>Not another baby log.<br/>A record of becoming.</h2><p>Clinical enough to be useful. Warm enough to feel like yours.</p></header>
+        <div className="feature-grid">{features.map(([Icon,title,copy],i) => (
+          <article key={title}><div className="feature-top"><span>0{i+1}</span><Icon/></div><h3>{title}</h3><p>{copy}</p><i className="accent-line"/></article>
+        ))}</div>
       </section>
 
-      {/* How it works */}
-      <section className="py-24 px-4 bg-white/60">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-warm-900 mb-4">
-              Up and running in 60 seconds
-            </h2>
-            <p className="text-warm-600 text-lg">
-              No complicated setup. Just sign in and start tracking.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                step: "1",
-                title: "Sign in",
-                description:
-                  "One tap with Google or Facebook. No forms, no passwords to remember.",
-              },
-              {
-                step: "2",
-                title: "Add your cub",
-                description:
-                  "Enter their name, birthday, and a photo. Pick a fun color theme.",
-              },
-              {
-                step: "3",
-                title: "Start tracking",
-                description:
-                  "Log growth, celebrate milestones, and get gentle AI insights each month.",
-              },
-            ].map((item) => (
-              <div key={item.step} className="text-center">
-                <div className="w-14 h-14 rounded-full bg-brand-500 text-white font-display font-bold text-xl flex items-center justify-center mx-auto mb-4">
-                  {item.step}
-                </div>
-                <h3 className="font-display font-bold text-lg text-warm-900 mb-2">
-                  {item.title}
-                </h3>
-                <p className="text-warm-600 text-sm">{item.description}</p>
-              </div>
-            ))}
-          </div>
+      <section id="inside" className="inside">
+        <div className="inside-copy">
+          <div className="eyebrow"><BarChart3/> Beautifully clear by design</div>
+          <h2>The full picture,<br/>without the overwhelm.</h2>
+          <p>See the trend, record the moment, and bring a clear history to checkups. MyCub turns scattered notes into a story you can understand at a glance.</p>
+          <ul>
+            <li><i><Ruler/></i><div><strong>Precise measurement history</strong><small>Metric entry with date-aware trends.</small></div></li>
+            <li><i><Sparkles/></i><div><strong>Thoughtful progress reports</strong><small>Readable summaries for family and care teams.</small></div></li>
+            <li><i><LockKeyhole/></i><div><strong>Private family workspace</strong><small>Supabase authentication and row-level security.</small></div></li>
+          </ul>
+          <Link className="inline-link" href="/signup">Explore your family dashboard <ArrowRight/></Link>
         </div>
+        <div className="preview-wrap"><div className="preview">
+          <div className="window-bar"><i/><i/><i/><b>Overview</b></div>
+          <div className="preview-body">
+            <div className="greeting"><div><small>GOOD MORNING</small><h3>Mila is growing beautifully.</h3></div><b>M</b></div>
+            <div className="preview-stats"><div><small>WEIGHT</small><strong>8.4 <i>kg</i></strong><span>↗ on track</span></div><div><small>LENGTH</small><strong>71.2 <i>cm</i></strong><span>↗ +2.1 cm</span></div><div><small>NEXT CHECK-IN</small><strong>12 <i>days</i></strong><span>Oct 24</span></div></div>
+            <div className="chart"><svg viewBox="0 0 600 220" role="img" aria-label="Sample growth chart"><defs><linearGradient id="fill" x1="0" y1="0" x2="0" y2="1"><stop stopColor="#6978eb" stopOpacity=".3"/><stop offset="1" stopColor="#6978eb" stopOpacity="0"/></linearGradient></defs><path d="M0 180 C90 165 110 130 190 135 S310 95 370 105 S475 55 600 42 L600 220 L0 220Z" fill="url(#fill)"/><path d="M0 180 C90 165 110 130 190 135 S310 95 370 105 S475 55 600 42" fill="none" stroke="#6978eb" strokeWidth="5" strokeLinecap="round"/></svg></div>
+          </div>
+        </div></div>
       </section>
 
-      {/* CTA */}
-      <section className="py-24 px-4">
-        <div className="max-w-3xl mx-auto text-center card-warm bg-gradient-to-br from-brand-50 to-lavender-50 py-16">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-warm-900 mb-4">
-            Every moment matters
-          </h2>
-          <p className="text-warm-600 text-lg mb-8 max-w-xl mx-auto">
-            Join thousands of parents who use MyCub to nurture confident,
-            healthy, happy children.
-          </p>
-          <Link href="/signup">
-            <Button size="xl">
-              Get Started Free
-              <ArrowRight className="w-5 h-5" />
-            </Button>
-          </Link>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-12 px-4 border-t border-warm-100">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center">
-              <Baby className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-display font-bold text-warm-900">MyCub</span>
-          </div>
-          <p className="text-warm-500 text-sm">
-            Made with love for growing families.
-          </p>
-        </div>
-      </footer>
-    </div>
+      <section id="privacy" className="privacy"><div><LockKeyhole/><span><strong>Their story is not our product.</strong><small>Private by default. No ads. No selling family data.</small></span></div><Link className="button light" href="/signup">Begin with MyCub <ArrowRight/></Link></section>
+      <footer><div className="brand"><span><Baby/></span>mycub</div><p>Made with care for growing families.</p><div><Link href="/login">Log in</Link><a href="#privacy">Privacy</a></div></footer>
+    </main>
   );
 }

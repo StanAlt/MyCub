@@ -9,6 +9,7 @@ export interface UserProfile {
 export interface Child {
   id: string;
   user_id: string;
+  family_id?: string;
   name: string;
   birth_date: string;
   gender: "boy" | "girl";

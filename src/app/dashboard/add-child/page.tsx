@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element -- local upload preview uses a data URL */
 "use client";
 
 import { useState } from "react";
@@ -50,6 +51,30 @@ export default function AddChildPage() {
       } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      let { data: membership } = await supabase
+        .from("family_members")
+        .select("family_id")
+        .eq("user_id", user.id)
+        .limit(1)
+        .maybeSingle();
+
+      if (!membership) {
+        const familyName = user.user_metadata?.full_name
+          ? `${user.user_metadata.full_name.split(" ")[0]}'s family`
+          : "My family";
+        const { data: family, error: familyError } = await supabase
+          .from("families")
+          .insert({ name: familyName, created_by: user.id })
+          .select("id")
+          .single();
+        if (familyError) throw familyError;
+        const { error: memberError } = await supabase
+          .from("family_members")
+          .insert({ family_id: family.id, user_id: user.id, role: "owner" });
+        if (memberError) throw memberError;
+        membership = { family_id: family.id };
+      }
+
       let photoUrl: string | undefined;
 
       // Upload photo if provided
@@ -71,6 +96,7 @@ export default function AddChildPage() {
       // Create child record
       const { error: insertError } = await supabase.from("children").insert({
         user_id: user.id,
+        family_id: membership.family_id,
         name,
         birth_date: birthDate,
         gender,
@@ -82,8 +108,8 @@ export default function AddChildPage() {
 
       router.push("/dashboard");
       router.refresh();
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
       setLoading(false);
     }
   }

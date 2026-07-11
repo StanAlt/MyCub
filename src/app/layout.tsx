@@ -15,9 +15,13 @@ const quicksand = Quicksand({
 });
 
 export const metadata: Metadata = {
-  title: "MyCub — Nurture Every Milestone",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://mycub.com"),
+  title: {
+    default: "MyCub — Every little change, one big story",
+    template: "%s | MyCub",
+  },
   description:
-    "Track your child's growth, celebrate milestones, and get gentle AI-powered insights to help your little one thrive.",
+    "A beautiful, private family space to track your child's growth, measurements, milestones, and memories.",
   keywords: [
     "child development",
     "growth tracker",
@@ -31,7 +35,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#ff6b3d",
+  themeColor: "#6978eb",
 };
 
 export default function RootLayout({
