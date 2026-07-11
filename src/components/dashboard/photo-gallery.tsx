@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element -- user-selected blobs and signed storage URLs are dynamic */
 "use client";
 
 import { useState } from "react";
@@ -97,7 +98,7 @@ export function PhotoGallery({ child, photos }: PhotoGalleryProps) {
       setCaption("");
       setTags([]);
       router.refresh();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Upload failed:", err);
     }
     setLoading(false);

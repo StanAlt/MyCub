@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   milestoneTemplates,
   getMilestonesForAge,
@@ -13,11 +13,9 @@ import {
 import { getAgeInMonths } from "@/lib/utils";
 import type { Child, Milestone, MilestoneCategory } from "@/lib/types";
 import {
-  Brain,
   CheckCircle2,
   Circle,
   Sparkles,
-  Filter,
   PartyPopper,
 } from "lucide-react";
 

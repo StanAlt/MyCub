@@ -17,7 +17,6 @@ export default async function MilestonesPage({
   const { data: children } = await supabase
     .from("children")
     .select("*")
-    .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
   if (!children || children.length === 0) redirect("/dashboard/add-child");
@@ -25,7 +24,7 @@ export default async function MilestonesPage({
   const params = await searchParams;
   const selectedChildId = params.child || children[0].id;
   const selectedChild =
-    children.find((c: any) => c.id === selectedChildId) || children[0];
+    children.find((child) => child.id === selectedChildId) || children[0];
 
   const { data: milestones } = await supabase
     .from("milestones")

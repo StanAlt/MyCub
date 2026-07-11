@@ -1,294 +1,93 @@
-"use client";
-
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { getAgeString } from "@/lib/utils";
 import type { Child, GrowthEntry, Milestone, AIInsight } from "@/lib/types";
-import {
-  TrendingUp,
-  Brain,
-  Sparkles,
-  Plus,
-  ArrowRight,
-  Scale,
-  Ruler,
-  Calendar,
-  CheckCircle2,
-  Clock,
-} from "lucide-react";
+import { getAgeString } from "@/lib/utils";
+import { ArrowRight, BookHeart, CalendarDays, Check, FileText, Plus, Ruler, Scale, Sparkles, TrendingUp } from "lucide-react";
 
-interface DashboardHomeProps {
+interface Props {
   child: Child;
   allChildren: Child[];
-  latestGrowth: GrowthEntry | null;
+  growthEntries: GrowthEntry[];
   recentMilestones: Milestone[];
   recentInsights: AIInsight[];
 }
 
-export function DashboardHome({
-  child,
-  allChildren,
-  latestGrowth,
-  recentMilestones,
-  recentInsights,
-}: DashboardHomeProps) {
-  const age = getAgeString(new Date(child.birth_date));
+function delta(entries: GrowthEntry[], key: "weight_kg" | "height_cm") {
+  const values = entries.filter((entry) => entry[key] != null);
+  if (values.length < 2) return null;
+  return Number(values.at(-1)![key]) - Number(values.at(-2)![key]);
+}
+
+function chartPoints(entries: GrowthEntry[]) {
+  const values = entries.filter((entry) => entry.height_cm).slice(-8);
+  if (!values.length) return "12,120 88,112 164,95 240,82 316,69 392,48 468,40 544,24";
+  const nums = values.map((entry) => Number(entry.height_cm));
+  const min = Math.min(...nums) - 1;
+  const max = Math.max(...nums) + 1;
+  return nums.map((value, index) => {
+    const x = values.length === 1 ? 270 : 12 + index * (532 / (values.length - 1));
+    const y = 130 - ((value - min) / Math.max(max - min, 1)) * 105;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+}
+
+export function DashboardHome({ child, allChildren, growthEntries, recentMilestones, recentInsights }: Props) {
+  const latest = growthEntries.at(-1);
+  const weightDelta = delta(growthEntries, "weight_kg");
+  const heightDelta = delta(growthEntries, "height_cm");
+  const achieved = recentMilestones.filter((milestone) => milestone.achieved_at);
+  const points = chartPoints(growthEntries);
+  const childQuery = `?child=${child.id}`;
+  const lastDate = latest ? new Date(latest.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Not yet";
 
   return (
-    <div className="py-6 space-y-6 animate-fade-in">
-      {/* Child header */}
-      <div className="flex items-center gap-4">
-        <Avatar className="w-16 h-16 ring-4 ring-brand-100">
-          {child.photo_url && <AvatarImage src={child.photo_url} />}
-          <AvatarFallback className="text-xl bg-brand-100 text-brand-600">
-            {child.name[0]}
-          </AvatarFallback>
-        </Avatar>
+    <div className="dashboard-overview">
+      <section className="overview-heading">
         <div>
-          <h1 className="font-display text-2xl font-bold text-warm-900">
-            {child.name}
-          </h1>
-          <p className="text-warm-500 flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            {age} old
-            <span className="text-warm-300">|</span>
-            {child.gender === "boy" ? "Boy" : "Girl"}
-          </p>
+          <span className="workspace-kicker">OVERVIEW · {getAgeString(new Date(child.birth_date)).toUpperCase()}</span>
+          <h1>{child.name} is <em>growing beautifully.</em></h1>
+          <p>A calm view of the measurements, moments, and changes you have recorded together.</p>
         </div>
-      </div>
-
-      {/* Child switcher (if multiple children) */}
-      {allChildren.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {allChildren.map((c) => (
-            <Link key={c.id} href={`/dashboard?child=${c.id}`}>
-              <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-medium transition-all ${
-                  c.id === child.id
-                    ? "bg-brand-500 text-white shadow-md"
-                    : "bg-white text-warm-600 border border-warm-200 hover:border-brand-200"
-                }`}
-              >
-                <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs">
-                  {c.name[0]}
-                </span>
-                {c.name}
-              </button>
-            </Link>
-          ))}
+        <div className="heading-actions">
+          <Link href={`/dashboard/growth${childQuery}`} className="app-button primary"><Plus /> Log measurement</Link>
+          <Link href={`/dashboard/reports${childQuery}`} className="app-button secondary"><FileText /> Open report</Link>
         </div>
-      )}
+      </section>
 
-      {/* Quick stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center">
-              <Scale className="w-5 h-5 text-sky-600" />
-            </div>
-            <div>
-              <p className="text-xs text-warm-500">Weight</p>
-              <p className="font-display font-bold text-lg text-warm-900">
-                {latestGrowth?.weight_kg
-                  ? `${latestGrowth.weight_kg} kg`
-                  : "—"}
-              </p>
-            </div>
+      {allChildren.length > 1 ? <div className="child-pills">{allChildren.map((item) => <Link className={item.id === child.id ? "active" : ""} href={`/dashboard?child=${item.id}`} key={item.id}><span>{item.name[0]}</span>{item.name}</Link>)}</div> : null}
+
+      <section className="metric-grid">
+        <article><div className="metric-icon lavender"><Scale /></div><span>LATEST WEIGHT</span><strong>{latest?.weight_kg ?? "—"} <small>{latest?.weight_kg ? "kg" : ""}</small></strong><p>{weightDelta == null ? "Add another entry to see change" : <><TrendingUp /> {weightDelta >= 0 ? "+" : ""}{weightDelta.toFixed(1)} kg since last entry</>}</p></article>
+        <article><div className="metric-icon mint"><Ruler /></div><span>LATEST LENGTH</span><strong>{latest?.height_cm ?? "—"} <small>{latest?.height_cm ? "cm" : ""}</small></strong><p>{heightDelta == null ? "Your trend will appear here" : <><TrendingUp /> {heightDelta >= 0 ? "+" : ""}{heightDelta.toFixed(1)} cm since last entry</>}</p></article>
+        <article><div className="metric-icon apricot"><Sparkles /></div><span>MILESTONES</span><strong>{achieved.length} <small>saved</small></strong><p><Check /> {recentMilestones.length - achieved.length} still exploring</p></article>
+        <article><div className="metric-icon blue"><CalendarDays /></div><span>LAST CHECK-IN</span><strong className="date-value">{lastDate}</strong><p>{growthEntries.length} measurements recorded</p></article>
+      </section>
+
+      <section className="overview-grid">
+        <article className="trend-card">
+          <header><div><span>GROWTH TREND</span><h2>Length over time</h2></div><Link href={`/dashboard/growth${childQuery}`}>View detailed chart <ArrowRight /></Link></header>
+          <div className="trend-chart">
+            <div className="chart-axis"><span>Higher</span><span>Middle</span><span>Start</span></div>
+            <svg viewBox="0 0 560 150" role="img" aria-label={`${child.name}'s length trend`}>
+              <defs><linearGradient id="overviewFill" x1="0" y1="0" x2="0" y2="1"><stop stopColor="#6978eb" stopOpacity=".28"/><stop offset="1" stopColor="#6978eb" stopOpacity="0"/></linearGradient></defs>
+              <polyline points={`12,142 ${points} 544,142`} fill="url(#overviewFill)" stroke="none"/>
+              <polyline points={points} fill="none" stroke="#6978eb" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+              {points.split(" ").map((point) => { const [cx,cy] = point.split(","); return <circle key={point} cx={cx} cy={cy} r="5" fill="#fff" stroke="#6978eb" strokeWidth="3"/>; })}
+            </svg>
           </div>
-        </Card>
+          <footer><span>First entry</span><span>{latest ? `Latest · ${lastDate}` : "Add the first measurement"}</span></footer>
+        </article>
 
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-sage-100 flex items-center justify-center">
-              <Ruler className="w-5 h-5 text-sage-600" />
-            </div>
-            <div>
-              <p className="text-xs text-warm-500">Height</p>
-              <p className="font-display font-bold text-lg text-warm-900">
-                {latestGrowth?.height_cm
-                  ? `${latestGrowth.height_cm} cm`
-                  : "—"}
-              </p>
-            </div>
+        <article className="story-card">
+          <header><div><span>RECENT STORY</span><h2>Moments to remember</h2></div><BookHeart /></header>
+          <div className="story-list">
+            {achieved.slice(0, 3).map((milestone) => <div key={milestone.id}><i><Check /></i><div><strong>{milestone.title}</strong><small>{milestone.achieved_at ? new Date(milestone.achieved_at).toLocaleDateString("en-US",{month:"long",day:"numeric"}) : "Recently"}</small></div></div>)}
+            {!achieved.length ? <div className="empty-story"><i><Sparkles /></i><div><strong>The next first is waiting</strong><small>Save a milestone when it happens.</small></div></div> : null}
           </div>
-        </Card>
+          <Link href={`/dashboard/milestones${childQuery}`} className="story-link">See all milestones <ArrowRight /></Link>
+        </article>
+      </section>
 
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-lavender-100 flex items-center justify-center">
-              <Brain className="w-5 h-5 text-lavender-600" />
-            </div>
-            <div>
-              <p className="text-xs text-warm-500">Milestones</p>
-              <p className="font-display font-bold text-lg text-warm-900">
-                {recentMilestones.filter((m) => m.achieved_at).length} done
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-brand-100 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-brand-600" />
-            </div>
-            <div>
-              <p className="text-xs text-warm-500">Insights</p>
-              <p className="font-display font-bold text-lg text-warm-900">
-                {recentInsights.length} new
-              </p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Action cards */}
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Growth prompt */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <TrendingUp className="w-5 h-5 text-sky-500" />
-              Growth Check-in
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {latestGrowth ? (
-              <div>
-                <p className="text-warm-600 text-sm mb-4">
-                  Last recorded on{" "}
-                  {new Date(latestGrowth.date).toLocaleDateString("en-US", {
-                    month: "long",
-                    day: "numeric",
-                  })}
-                  . Time for an update?
-                </p>
-                <div className="flex gap-3">
-                  <Link href="/dashboard/growth">
-                    <Button size="sm">
-                      <Plus className="w-4 h-4" />
-                      Log Growth
-                    </Button>
-                  </Link>
-                  <Link href="/dashboard/growth">
-                    <Button variant="outline" size="sm">
-                      View Chart
-                      <ArrowRight className="w-4 h-4" />
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            ) : (
-              <div>
-                <p className="text-warm-600 text-sm mb-4">
-                  Start tracking {child.name}&apos;s growth! Add their current
-                  weight and height to see beautiful percentile charts.
-                </p>
-                <Link href="/dashboard/growth">
-                  <Button size="sm">
-                    <Plus className="w-4 h-4" />
-                    Add First Measurement
-                  </Button>
-                </Link>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Milestones prompt */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Brain className="w-5 h-5 text-lavender-500" />
-              Milestones
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {recentMilestones.length > 0 ? (
-              <div>
-                <div className="space-y-2 mb-4">
-                  {recentMilestones.slice(0, 3).map((m) => (
-                    <div
-                      key={m.id}
-                      className="flex items-center gap-2 text-sm"
-                    >
-                      {m.achieved_at ? (
-                        <CheckCircle2 className="w-4 h-4 text-sage-500 flex-shrink-0" />
-                      ) : (
-                        <Clock className="w-4 h-4 text-warm-400 flex-shrink-0" />
-                      )}
-                      <span
-                        className={
-                          m.achieved_at ? "text-warm-700" : "text-warm-500"
-                        }
-                      >
-                        {m.title}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                <Link href="/dashboard/milestones">
-                  <Button variant="outline" size="sm">
-                    View All
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
-                </Link>
-              </div>
-            ) : (
-              <div>
-                <p className="text-warm-600 text-sm mb-4">
-                  Track developmental milestones based on CDC guidelines.
-                  We&apos;ll help you know what to look for at {child.name}
-                  &apos;s age.
-                </p>
-                <Link href="/dashboard/milestones">
-                  <Button variant="accent" size="sm">
-                    <Plus className="w-4 h-4" />
-                    Explore Milestones
-                  </Button>
-                </Link>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* AI Insights */}
-      {recentInsights.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Sparkles className="w-5 h-5 text-brand-500" />
-              AI Insights for {child.name}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentInsights.map((insight) => (
-                <div
-                  key={insight.id}
-                  className="p-4 rounded-2xl bg-gradient-to-r from-brand-50 to-lavender-50 border border-brand-100"
-                >
-                  <h4 className="font-display font-semibold text-warm-900 mb-1">
-                    {insight.title}
-                  </h4>
-                  <p className="text-sm text-warm-600 leading-relaxed">
-                    {insight.content}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <Link href="/dashboard/insights" className="block mt-4">
-              <Button variant="soft" size="sm" className="w-full">
-                View All Insights
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-      )}
+      <section className="gentle-note"><Sparkles /><div><span>MYCUB NOTE</span><strong>{recentInsights[0]?.title || "Trends matter more than a single number."}</strong><p>{recentInsights[0]?.content || "Growth rarely follows a perfectly straight line. Keep recording consistently and bring questions to your child’s care team."}</p></div></section>
     </div>
   );
 }

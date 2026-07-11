@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  AreaChart,
   Area,
   XAxis,
   YAxis,
@@ -10,10 +9,8 @@ import {
   ResponsiveContainer,
   Line,
   ComposedChart,
-  Scatter,
 } from "recharts";
 import type { GrowthEntry, GrowthPercentile } from "@/lib/types";
-import { getAgeInMonths } from "@/lib/utils";
 
 interface GrowthChartProps {
   entries: GrowthEntry[];
@@ -33,7 +30,6 @@ export function GrowthChart({
   // Build the chart data by merging percentile curves with actual measurements
   const chartData = percentileData.map((p) => {
     const entry = entries.find((e) => {
-      const entryAge = getAgeInMonths(new Date(birthDate));
       const entryDate = new Date(e.date);
       const birth = new Date(birthDate);
       const months =

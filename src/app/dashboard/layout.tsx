@@ -23,17 +23,16 @@ export default async function DashboardLayout({
   const { data: childrenData } = await supabase
     .from("children")
     .select("*")
-    .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
   return (
-    <div className="min-h-screen bg-warm-50">
+    <div className="app-shell">
       <DashboardNav
         user={profile || { id: user.id, email: user.email!, full_name: "", created_at: "" }}
-        children={childrenData || []}
+        childRecords={childrenData || []}
       />
-      <main className="pt-16 pb-8 px-4">
-        <div className="max-w-6xl mx-auto">{children}</div>
+      <main className="app-main">
+        <div className="app-content">{children}</div>
       </main>
     </div>
   );
