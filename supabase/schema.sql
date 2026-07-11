@@ -106,6 +106,26 @@ create or replace function public.can_access_child(target_child uuid)
 returns boolean language sql stable security invoker set search_path = ''
 as $$ select exists(select 1 from public.children c where c.id = target_child and (c.user_id = (select auth.uid()) or public.is_family_member(c.family_id))) $$;
 
+create or replace function public.can_edit_child(target_child uuid)
+returns boolean language sql stable security invoker set search_path = ''
+as $$ select exists(select 1 from public.children c where c.id = target_child and (c.user_id = (select auth.uid()) or public.can_edit_family(c.family_id))) $$;
+
+drop policy if exists "profile read own" on public.profiles;
+drop policy if exists "profile update own" on public.profiles;
+drop policy if exists "family create" on public.families;
+drop policy if exists "family read" on public.families;
+drop policy if exists "family update owners" on public.families;
+drop policy if exists "membership read" on public.family_members;
+drop policy if exists "membership bootstrap" on public.family_members;
+drop policy if exists "children read" on public.children;
+drop policy if exists "children insert" on public.children;
+drop policy if exists "children update" on public.children;
+drop policy if exists "children delete" on public.children;
+drop policy if exists "growth family access" on public.growth_entries;
+drop policy if exists "milestones family access" on public.milestones;
+drop policy if exists "photos family access" on public.photos;
+drop policy if exists "insights family read" on public.ai_insights;
+
 create policy "profile read own" on public.profiles for select to authenticated using ((select auth.uid()) = id);
 create policy "profile update own" on public.profiles for update to authenticated using ((select auth.uid()) = id) with check ((select auth.uid()) = id);
 create policy "family create" on public.families for insert to authenticated with check (created_by = (select auth.uid()));
@@ -135,15 +155,22 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created after insert on auth.users for each row execute function public.handle_new_user();
 
 insert into storage.buckets(id,name,public) values('child-photos','child-photos',false) on conflict (id) do update set public = false;
-create policy "family photo read" on storage.objects for select to authenticated using (bucket_id='child-photos' and (storage.foldername(name))[1]=(select auth.uid())::text);
-create policy "family photo upload" on storage.objects for insert to authenticated with check (bucket_id='child-photos' and (storage.foldername(name))[1]=(select auth.uid())::text);
-create policy "family photo update" on storage.objects for update to authenticated using (bucket_id='child-photos' and (storage.foldername(name))[1]=(select auth.uid())::text) with check (bucket_id='child-photos' and (storage.foldername(name))[1]=(select auth.uid())::text);
-create policy "family photo delete" on storage.objects for delete to authenticated using (bucket_id='child-photos' and (storage.foldername(name))[1]=(select auth.uid())::text);
+drop policy if exists "Users can upload photos" on storage.objects;
+drop policy if exists "Anyone can view photos" on storage.objects;
+drop policy if exists "Users can delete own photos" on storage.objects;
+drop policy if exists "family photo read" on storage.objects;
+drop policy if exists "family photo upload" on storage.objects;
+drop policy if exists "family photo update" on storage.objects;
+drop policy if exists "family photo delete" on storage.objects;
+create policy "family photo read" on storage.objects for select to authenticated using (bucket_id='child-photos' and (public.can_access_child(((storage.foldername(name))[1])::uuid) or public.can_access_child(((storage.foldername(name))[2])::uuid)));
+create policy "family photo upload" on storage.objects for insert to authenticated with check (bucket_id='child-photos' and (public.can_edit_child(((storage.foldername(name))[1])::uuid) or public.can_edit_child(((storage.foldername(name))[2])::uuid)));
+create policy "family photo update" on storage.objects for update to authenticated using (bucket_id='child-photos' and (public.can_edit_child(((storage.foldername(name))[1])::uuid) or public.can_edit_child(((storage.foldername(name))[2])::uuid))) with check (bucket_id='child-photos' and (public.can_edit_child(((storage.foldername(name))[1])::uuid) or public.can_edit_child(((storage.foldername(name))[2])::uuid)));
+create policy "family photo delete" on storage.objects for delete to authenticated using (bucket_id='child-photos' and (public.can_edit_child(((storage.foldername(name))[1])::uuid) or public.can_edit_child(((storage.foldername(name))[2])::uuid)));
 
 grant usage on schema public to authenticated;
 grant select, insert, update, delete on public.profiles, public.families, public.family_members, public.children, public.growth_entries, public.milestones, public.photos to authenticated;
 grant select on public.ai_insights to authenticated;
-grant execute on function public.is_family_member(uuid), public.can_edit_family(uuid), public.can_access_child(uuid) to authenticated;
+grant execute on function public.is_family_member(uuid), public.can_edit_family(uuid), public.can_access_child(uuid), public.can_edit_child(uuid) to authenticated;
 create index if not exists idx_family_members_user on public.family_members(user_id);
 create index if not exists idx_children_family on public.children(family_id);
 create index if not exists idx_children_user on public.children(user_id);

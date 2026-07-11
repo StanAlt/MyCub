@@ -33,6 +33,7 @@ export interface Photo {
   id: string;
   child_id: string;
   url: string;
+  storage_path?: string;
   caption?: string;
   tags: string[];
   taken_at: string;

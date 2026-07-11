@@ -32,5 +32,17 @@ export default async function PhotosPage({
     .eq("child_id", selectedChild.id)
     .order("taken_at", { ascending: false });
 
-  return <PhotoGallery child={selectedChild} photos={photos || []} />;
+  const signedPhotos = await Promise.all(
+    (photos || []).map(async (photo) => {
+      const storagePath =
+        photo.storage_path || photo.url.split("/child-photos/").pop() || photo.url;
+      const { data } = await supabase.storage
+        .from("child-photos")
+        .createSignedUrl(storagePath, 60 * 60);
+
+      return { ...photo, url: data?.signedUrl || "" };
+    })
+  );
+
+  return <PhotoGallery child={selectedChild} photos={signedPhotos} />;
 }
