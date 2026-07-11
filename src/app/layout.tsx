@@ -1,18 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Nunito, Quicksand } from "next/font/google";
 import "./globals.css";
-
-const nunito = Nunito({
-  subsets: ["latin"],
-  variable: "--font-nunito",
-  display: "swap",
-});
-
-const quicksand = Quicksand({
-  subsets: ["latin"],
-  variable: "--font-quicksand",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://mycub.com"),
@@ -44,10 +31,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${nunito.variable} ${quicksand.variable}`}>
+    <html lang="en">
       <body className="min-h-screen">
         {children}
       </body>
     </html>
   );
 }
+
