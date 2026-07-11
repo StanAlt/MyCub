@@ -11,6 +11,7 @@ import {
   ComposedChart,
 } from "recharts";
 import type { GrowthEntry, GrowthPercentile } from "@/lib/types";
+import { parseDateOnly } from "@/lib/utils";
 
 interface GrowthChartProps {
   entries: GrowthEntry[];
@@ -30,8 +31,8 @@ export function GrowthChart({
   // Build the chart data by merging percentile curves with actual measurements
   const chartData = percentileData.map((p) => {
     const entry = entries.find((e) => {
-      const entryDate = new Date(e.date);
-      const birth = new Date(birthDate);
+      const entryDate = parseDateOnly(e.date);
+      const birth = parseDateOnly(birthDate);
       const months =
         (entryDate.getFullYear() - birth.getFullYear()) * 12 +
         (entryDate.getMonth() - birth.getMonth());
@@ -60,8 +61,8 @@ export function GrowthChart({
   const actualPoints = entries
     .filter((e) => (metric === "weight" ? e.weight_kg : e.height_cm))
     .map((e) => {
-      const birth = new Date(birthDate);
-      const entryDate = new Date(e.date);
+      const birth = parseDateOnly(birthDate);
+      const entryDate = parseDateOnly(e.date);
       const months =
         (entryDate.getFullYear() - birth.getFullYear()) * 12 +
         (entryDate.getMonth() - birth.getMonth());
