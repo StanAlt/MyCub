@@ -75,36 +75,45 @@ export default function AddChildPage() {
         membership = { family_id: family.id };
       }
 
-      let photoUrl: string | undefined;
-
-      // Upload photo if provided
-      if (photo) {
-        const fileExt = photo.name.split(".").pop();
-        const filePath = `${user.id}/${Date.now()}.${fileExt}`;
-        const { error: uploadError } = await supabase.storage
-          .from("child-photos")
-          .upload(filePath, photo);
-
-        if (!uploadError) {
-          const {
-            data: { publicUrl },
-          } = supabase.storage.from("child-photos").getPublicUrl(filePath);
-          photoUrl = publicUrl;
-        }
-      }
-
-      // Create child record
-      const { error: insertError } = await supabase.from("children").insert({
-        user_id: user.id,
-        family_id: membership.family_id,
-        name,
-        birth_date: birthDate,
-        gender,
-        photo_url: photoUrl,
-        theme_color: themeColor,
-      });
+      // The child must exist before private Storage can authorize a child-scoped upload.
+      const { data: child, error: insertError } = await supabase
+        .from("children")
+        .insert({
+          user_id: user.id,
+          family_id: membership.family_id,
+          name,
+          birth_date: birthDate,
+          gender,
+          theme_color: themeColor,
+        })
+        .select("id")
+        .single();
 
       if (insertError) throw insertError;
+
+      if (photo) {
+        const fileExt = photo.name.split(".").pop()?.toLowerCase() || "jpg";
+        const filePath = `${child.id}/avatar.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from("child-photos")
+          .upload(filePath, photo, { upsert: true });
+
+        if (uploadError) {
+          await supabase.from("children").delete().eq("id", child.id);
+          throw uploadError;
+        }
+
+        const { error: photoError } = await supabase
+          .from("children")
+          .update({ photo_url: filePath })
+          .eq("id", child.id);
+
+        if (photoError) {
+          await supabase.storage.from("child-photos").remove([filePath]);
+          await supabase.from("children").delete().eq("id", child.id);
+          throw photoError;
+        }
+      }
 
       router.push("/dashboard");
       router.refresh();
