@@ -12,7 +12,7 @@ import {
   interpolatePercentile,
   getPercentileBand,
 } from "@/lib/growth-data";
-import { getAgeInMonths } from "@/lib/utils";
+import { formatDateOnly, getAgeInMonths, getLocalDateInputValue, parseDateOnly } from "@/lib/utils";
 import type { Child, GrowthEntry } from "@/lib/types";
 import { Plus, Scale, Ruler, TrendingUp, X, Info } from "lucide-react";
 
@@ -26,13 +26,13 @@ export function GrowthTracker({ child, entries }: GrowthTrackerProps) {
   const [metric, setMetric] = useState<"weight" | "height">("weight");
   const [weightKg, setWeightKg] = useState("");
   const [heightCm, setHeightCm] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [date, setDate] = useState(getLocalDateInputValue());
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
-  const ageMonths = getAgeInMonths(new Date(child.birth_date));
+  const ageMonths = getAgeInMonths(parseDateOnly(child.birth_date));
   const growthData = getGrowthData(child.gender, metric);
   const currentPercentile = interpolatePercentile(growthData, ageMonths);
 
@@ -76,7 +76,7 @@ export function GrowthTracker({ child, entries }: GrowthTrackerProps) {
             Growth Tracker
           </h1>
           <p className="text-warm-500 text-sm">
-            {child.name}&apos;s growth journey — WHO percentile standards
+            {child.name}&apos;s growth journey â€” WHO percentile standards
           </p>
         </div>
         <Button onClick={() => setShowForm(true)}>
@@ -210,7 +210,7 @@ export function GrowthTracker({ child, entries }: GrowthTrackerProps) {
           </div>
           <p className="text-xs text-warm-500 mt-3">
             Percentiles show how your child compares to other children of the
-            same age and sex. The 50th percentile is average — being above or
+            same age and sex. The 50th percentile is average â€” being above or
             below is usually perfectly normal.
           </p>
         </CardContent>
@@ -235,7 +235,7 @@ export function GrowthTracker({ child, entries }: GrowthTrackerProps) {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-warm-800">
-                        {new Date(entry.date).toLocaleDateString("en-US", {
+                        {formatDateOnly(entry.date, {
                           month: "short",
                           day: "numeric",
                           year: "numeric",

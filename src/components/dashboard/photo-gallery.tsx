@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Child, Photo } from "@/lib/types";
+import { formatDateOnly, getLocalDateInputValue } from "@/lib/utils";
 import { ImageIcon, Plus, Upload, X, Tag, Calendar } from "lucide-react";
 
 interface PhotoGalleryProps {
@@ -38,7 +39,7 @@ export function PhotoGallery({ child, photos }: PhotoGalleryProps) {
   const [caption, setCaption] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [takenAt, setTakenAt] = useState(
-    new Date().toISOString().split("T")[0]
+    getLocalDateInputValue()
   );
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -146,7 +147,7 @@ export function PhotoGallery({ child, photos }: PhotoGalleryProps) {
                     </p>
                   )}
                   <p className="text-white/70 text-xs">
-                    {new Date(photo.taken_at).toLocaleDateString("en-US", {
+                    {formatDateOnly(photo.taken_at, {
                       month: "short",
                       day: "numeric",
                       year: "numeric",
@@ -322,7 +323,7 @@ export function PhotoGallery({ child, photos }: PhotoGalleryProps) {
               <div className="flex items-center gap-3 text-white/70 text-sm">
                 <span className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
-                  {new Date(selectedPhoto.taken_at).toLocaleDateString("en-US", {
+                  {formatDateOnly(selectedPhoto.taken_at, {
                     month: "long",
                     day: "numeric",
                     year: "numeric",
