@@ -71,8 +71,8 @@ export function PhotoGallery({ child, photos }: PhotoGalleryProps) {
       } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const fileExt = file.name.split(".").pop();
-      const filePath = `${user.id}/${child.id}/${Date.now()}.${fileExt}`;
+      const fileExt = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const filePath = `${child.id}/${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from("child-photos")
@@ -80,17 +80,19 @@ export function PhotoGallery({ child, photos }: PhotoGalleryProps) {
 
       if (uploadError) throw uploadError;
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("child-photos").getPublicUrl(filePath);
-
-      await supabase.from("photos").insert({
+      const { error: insertError } = await supabase.from("photos").insert({
         child_id: child.id,
-        url: publicUrl,
+        url: filePath,
+        storage_path: filePath,
         caption: caption || null,
         tags,
         taken_at: takenAt,
       });
+
+      if (insertError) {
+        await supabase.storage.from("child-photos").remove([filePath]);
+        throw insertError;
+      }
 
       setShowUpload(false);
       setFile(null);
