@@ -43,7 +43,7 @@ export function DashboardHome({ child, allChildren, growthEntries, recentMilesto
     <div className="dashboard-overview">
       <section className="overview-heading">
         <div>
-          <span className="workspace-kicker">OVERVIEW Â· {getAgeString(parseDateOnly(child.birth_date)).toUpperCase()}</span>
+          <span className="workspace-kicker">OVERVIEW · {getAgeString(parseDateOnly(child.birth_date)).toUpperCase()}</span>
           <h1>{child.name} is <em>growing beautifully.</em></h1>
           <p>A calm view of the measurements, moments, and changes you have recorded together.</p>
         </div>
@@ -56,8 +56,8 @@ export function DashboardHome({ child, allChildren, growthEntries, recentMilesto
       {allChildren.length > 1 ? <div className="child-pills">{allChildren.map((item) => <Link className={item.id === child.id ? "active" : ""} href={`/dashboard?child=${item.id}`} key={item.id}><span>{item.name[0]}</span>{item.name}</Link>)}</div> : null}
 
       <section className="metric-grid">
-        <article><div className="metric-icon lavender"><Scale /></div><span>LATEST WEIGHT</span><strong>{latest?.weight_kg ?? "â€”"} <small>{latest?.weight_kg ? "kg" : ""}</small></strong><p>{weightDelta == null ? "Add another entry to see change" : <><TrendingUp /> {weightDelta >= 0 ? "+" : ""}{weightDelta.toFixed(1)} kg since last entry</>}</p></article>
-        <article><div className="metric-icon mint"><Ruler /></div><span>LATEST LENGTH</span><strong>{latest?.height_cm ?? "â€”"} <small>{latest?.height_cm ? "cm" : ""}</small></strong><p>{heightDelta == null ? "Your trend will appear here" : <><TrendingUp /> {heightDelta >= 0 ? "+" : ""}{heightDelta.toFixed(1)} cm since last entry</>}</p></article>
+        <article><div className="metric-icon lavender"><Scale /></div><span>LATEST WEIGHT</span><strong>{latest?.weight_kg ?? "—"} <small>{latest?.weight_kg ? "kg" : ""}</small></strong><p>{weightDelta == null ? "Add another entry to see change" : <><TrendingUp /> {weightDelta >= 0 ? "+" : ""}{weightDelta.toFixed(1)} kg since last entry</>}</p></article>
+        <article><div className="metric-icon mint"><Ruler /></div><span>LATEST LENGTH</span><strong>{latest?.height_cm ?? "—"} <small>{latest?.height_cm ? "cm" : ""}</small></strong><p>{heightDelta == null ? "Your trend will appear here" : <><TrendingUp /> {heightDelta >= 0 ? "+" : ""}{heightDelta.toFixed(1)} cm since last entry</>}</p></article>
         <article><div className="metric-icon apricot"><Sparkles /></div><span>MILESTONES</span><strong>{achieved.length} <small>saved</small></strong><p><Check /> {recentMilestones.length - achieved.length} still exploring</p></article>
         <article><div className="metric-icon blue"><CalendarDays /></div><span>LAST CHECK-IN</span><strong className="date-value">{lastDate}</strong><p>{growthEntries.length} measurements recorded</p></article>
       </section>
@@ -74,7 +74,7 @@ export function DashboardHome({ child, allChildren, growthEntries, recentMilesto
               {points.split(" ").map((point) => { const [cx,cy] = point.split(","); return <circle key={point} cx={cx} cy={cy} r="5" fill="#fff" stroke="#6978eb" strokeWidth="3"/>; })}
             </svg>
           </div>
-          <footer><span>First entry</span><span>{latest ? `Latest Â· ${lastDate}` : "Add the first measurement"}</span></footer>
+          <footer><span>First entry</span><span>{latest ? `Latest · ${lastDate}` : "Add the first measurement"}</span></footer>
         </article>
 
         <article className="story-card">
@@ -87,7 +87,7 @@ export function DashboardHome({ child, allChildren, growthEntries, recentMilesto
         </article>
       </section>
 
-      <section className="gentle-note"><Sparkles /><div><span>MYCUB NOTE</span><strong>{recentInsights[0]?.title || "Trends matter more than a single number."}</strong><p>{recentInsights[0]?.content || "Growth rarely follows a perfectly straight line. Keep recording consistently and bring questions to your childâ€™s care team."}</p></div></section>
+      <section className="gentle-note"><Sparkles /><div><span>MYCUB NOTE</span><strong>{recentInsights[0]?.title || "Trends matter more than a single number."}</strong><p>{recentInsights[0]?.content || "Growth rarely follows a perfectly straight line. Keep recording consistently and bring questions to your child’s care team."}</p></div></section>
     </div>
   );
 }
